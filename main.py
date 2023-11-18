@@ -1,6 +1,6 @@
 import tkinter as tk
+import customtkinter as ctk
 from tkinter import ttk
-from tkinter import messagebox
 from tkinter.scrolledtext import ScrolledText
 
 class CasinoGui:
@@ -9,6 +9,7 @@ class CasinoGui:
         self.root.title("Casino")
         self.root.geometry("600x400")
         self.create_widgets()
+        self.balance = 0
 
     def create_widgets(self):
         # Title
@@ -125,24 +126,24 @@ class CasinoGui:
         # Login Entry
         self.login_label = ttk.Label(self.dep_frame, text="Amount:", font="Arial 15")
         self.login_label.grid(row=0, column=0)
-        self.login_entry = ttk.Entry(self.dep_frame)
-        self.login_entry.grid(row=0, column=1)
+        self.dep_entry = ttk.Entry(self.dep_frame)
+        self.dep_entry.grid(row=0, column=1)
 
-        self.button_login = tk.Button(self.dep_frame, text="Deposit", width=5)
+        self.button_login = tk.Button(self.dep_frame, text="Deposit", command=self.dep_dw, width=5)
         self.button_login.grid(row=0, column=2)
 
         self.login_label = ttk.Label(self.dep_frame, text="Amount:", font="Arial 15")
         self.login_label.grid(row=3, column=0)
-        self.login_entry = ttk.Entry(self.dep_frame)
-        self.login_entry.grid(row=3, column=1)
+        self.with_entry = ttk.Entry(self.dep_frame)
+        self.with_entry.grid(row=3, column=1)
 
-        self.button_login = tk.Button(self.dep_frame, text="Withdraw", width=5)
+        self.button_login = tk.Button(self.dep_frame, text="Withdraw", command=self.with_dw, width=5)
         self.button_login.grid(row=3, column=2)
 
         self.account_label = tk.Label(self.root, text="Account Balance:", font="Arial 15")
         self.account_label.pack(pady=(10,0))
 
-        self.balance_label = tk.Label(self.root, text="$1.50", font="Arial 15", fg='green')
+        self.balance_label = tk.Label(self.root, text=f"${self.balance:.2f}", font="Arial 15", fg='green')
         self.balance_label.pack()
 
         self.back_d_button = tk.Button(self.root, text="Back", font="Arial 15 bold", command=self.back__dw, width=30,
@@ -156,6 +157,21 @@ class CasinoGui:
         self.account_label.pack_forget()
         self.balance_label.pack_forget()
         self.casino_menu()
+
+    def dep_dw(self):
+        amount = float(self.dep_entry.get())
+        if amount > 0:
+            self.balance += amount
+            self.update_balance_label()
+
+    def with_dw(self):
+        amount = float(self.with_entry.get())
+        if amount <= self.balance:
+            self.balance -= amount
+            self.update_balance_label()
+
+    def update_balance_label(self):
+        self.balance_label.config(text=f"${self.balance:.2f}")
 
     def view_history(self):
         self.clear_menu()
@@ -182,7 +198,7 @@ class CasinoGui:
 
     def register(self):
         self.clear_login()
-        self.register_title_label = tk.Label(self.root, text="Register an Account", font="Arial 35 vold")
+        self.register_title_label = tk.Label(self.root, text="Register an Account", font="Arial 35 bold")
         self.register_title_label.pack(pady=50)
 
         # Register frame
