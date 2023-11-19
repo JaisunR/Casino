@@ -2,6 +2,7 @@ import tkinter as tk
 import customtkinter as ctk
 from tkinter import ttk
 from tkinter.scrolledtext import ScrolledText
+from tkinter import messagebox
 
 class CasinoGui:
     def __init__(self, root):
@@ -95,7 +96,7 @@ class CasinoGui:
         self.play_title_label = ctk.CTkLabel(self.root, text="Choose a Game", font=("Arial", 35, "bold"))
         self.play_title_label.pack(pady=35)
 
-        self.play_slots_button = ctk.CTkButton(self.root, text="Slots", font=("Arial", 15, "bold"),
+        self.play_slots_button = ctk.CTkButton(self.root, text="Slots", command=self.slots_play, font=("Arial", 15, "bold"),
                                            width=250, height=50)
         self.play_slots_button.pack()
 
@@ -106,6 +107,50 @@ class CasinoGui:
         self.back_play_button = ctk.CTkButton(self.root, text="Back", font=("Arial", 15, "bold"), command=self.back_play,
                                           width=250, height=50)
         self.back_play_button.pack()
+
+    def slots_play(self):
+        self.back_play_button.pack_forget()
+        self.play_title_label.pack_forget()
+        self.play_slots_button.pack_forget()
+        self.play_blackjack_button.pack_forget()
+
+        self.title_label = ctk.CTkLabel(self.root, text="Slots!", font=("Arial", 30, "bold", "italic"))
+        self.title_label.pack(pady=25)
+
+        self.dep_frame = ttk.Frame(self.root)
+        self.dep_frame.pack(pady=5)
+
+        self.account_label = ctk.CTkLabel(self.dep_frame, text="Balance:", font=("Arial", 15))
+        self.account_label.grid(row=0, column=0)
+
+        self.balance_label = ctk.CTkLabel(self.dep_frame, text=f"${self.balance:.2f}", font=("Arial", 20, "bold"),
+                                          text_color='green')
+        self.balance_label.grid(row=0, column=1)
+
+        # Login Entry
+        self.login_label = ctk.CTkLabel(self.dep_frame, text="Amount:", font=("Arial", 15))
+        self.login_label.grid(row=0, column=2, padx=(40, 5))
+        self.with_entry = ctk.CTkEntry(self.dep_frame)
+        self.with_entry.grid(row=0, column=3, padx=(0,5))
+
+
+
+        self.button_login = ctk.CTkButton(self.dep_frame, text="Place Bet", command=self.with_dw, width=5, height=5)
+        self.button_login.grid(row=0, column=4)
+
+        self.back_play_button = ctk.CTkButton(self.root, text="Back", font=("Arial", 15, "bold"),
+                                              command=self.slots_back,
+                                              width=250, height=50)
+        self.back_play_button.pack()
+
+    def slots_back(self):
+        self.title_label.pack_forget()
+        self.back_play_button.pack_forget()
+        self.account_label.pack_forget()
+        self.balance_label.pack_forget()
+        self.dep_frame.pack_forget()
+
+        self.play()
 
     def back_play(self):
         self.back_play_button.pack_forget()
@@ -165,9 +210,13 @@ class CasinoGui:
 
     def with_dw(self):
         amount = float(self.with_entry.get())
+        if amount <= 0:
+            messagebox.showerror("Casino Error", "Amount must be greater than zero")
         if amount <= self.balance:
             self.balance -= amount
             self.update_balance_label()
+        else:
+            messagebox.showerror("Casino Error", "Insufficient Funds")
 
     def update_balance_label(self):
         self.balance_label.configure(text=f"${self.balance:.2f}")
