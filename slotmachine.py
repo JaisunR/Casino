@@ -16,9 +16,3 @@ def spin_slot_machine():
 def check_win(slots):
     # Check if all three slots have the same symbol
     return slots[0] == slots[1] == slots[2]
-
-
-def play_slot_machine(balance):
-    slots = spin_slot_machine()
-    if check_win(slots):
-        balance += balance * 10
