@@ -270,12 +270,12 @@ class CasinoGui:
         self.value_frame = tk.Frame(self.root)
         self.value_frame.pack()
         # Your label
-        your_value = 0
-        self.your = ctk.CTkLabel(self.value_frame, text=f"Your: {your_value}", font=("Arial", 15, "bold"))
+        self.your_value = 0
+        self.your = ctk.CTkLabel(self.value_frame, text=f"Your: {self.your_value}", font=("Arial", 15, "bold"))
         self.your.grid(row=0, column=0, padx=(0, 300))
         # Dealer label
-        dealer_value = 0
-        self.dealer = ctk.CTkLabel(self.value_frame, text=f"Dealer: {your_value}", font=("Arial", 15, "bold"))
+        self.dealer_value = 0
+        self.dealer = ctk.CTkLabel(self.value_frame, text=f"Dealer: {self.your_value}", font=("Arial", 15, "bold"))
         self.dealer.grid(row=0, column=1)
 
         # Load images for deck of cards
@@ -373,11 +373,26 @@ class CasinoGui:
 
                 # self.player_value = blackjack.calculate_hand_value(self.player_hand)
 
-                self.player_hand.append(blackjack.deal_card(self.player_hand, self.deck))
+                blackjack.deal_card(self.player_hand, self.deck)
                 self.uCard1.configure(image=self.card_images[self.player_hand[0]])
 
-                self.player_hand.append(blackjack.deal_card(self.player_hand, self.deck))
+                blackjack.deal_card(self.player_hand, self.deck)
                 self.uCard2.configure(image=self.card_images[self.player_hand[1]])
+
+                self.your_value = blackjack.calculate_hand_value(self.player_hand)
+                self.your.configure(text=f"Your: {self.your_value}")
+
+                blackjack.deal_card(self.dealer_hand, self.deck)
+                self.dCard1.configure(image=self.card_images[self.dealer_hand[0]])
+
+                self.dealer_value = blackjack.calculate_hand_value(self.dealer_hand)
+                self.dealer.configure(text=f"Dealer: {self.dealer_value}")
+
+                blackjack.deal_card(self.dealer_hand, self.deck)
+
+                print(self.player_hand)
+                print(self.dealer_hand)
+
 
 
             # Error handling for Insufficient Balance
