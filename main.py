@@ -5,6 +5,7 @@ from tkinter.scrolledtext import ScrolledText
 from tkinter import messagebox
 from PIL import Image, ImageTk
 import slotmachine
+import blackjack
 
 
 class CasinoGui:
@@ -13,10 +14,10 @@ class CasinoGui:
         self.root = root
         self.root.title("Casino")
         self.root.geometry("600x400")
-        self.create_widgets()
+        self.create_login()
         self.balance = 0
 
-    def create_widgets(self):
+    def create_login(self):
         # Title
         self.title_label = ctk.CTkLabel(self.root, text="Welcome to the Casino!", font=("Arial", 40, "bold", "italic"))
         self.title_label.pack(pady=50)
@@ -112,6 +113,7 @@ class CasinoGui:
 
         # Play Blackjack button
         self.play_blackjack_button = ctk.CTkButton(self.root, text="Blackjack", font=("Arial", 15, "bold"),
+                                                   command=self.blackjack_play,
                                                    width=250, height=50)
         self.play_blackjack_button.pack(pady=5)
 
@@ -187,39 +189,42 @@ class CasinoGui:
 
         # Go back button
         self.back_button = ctk.CTkButton(self.root, text="Back", font=("Arial", 15, "bold"),
-                                              command=self.slots_back,
-                                              width=250, height=50)
+                                         command=self.slots_back,
+                                         width=250, height=50)
         self.back_button.pack(pady=(20, 0))
 
     def slots_spin(self):
         # Instantiate slotmachine
         slots = slotmachine
 
-        # Get amount from entry field
-        amount = float(self.bet_entry.get())
-        # Error handling for negatives and zero amounts
-        if amount <= 0:
-            messagebox.showerror("Casino Error", "Amount must be greater than zero")
-        # Correct Entry
-        elif amount <= self.balance:
-            # Subtract amount from balance and update balance label
-            self.balance -= amount
-            self.update_balance_label()
-            # Add spin machine results to array
-            result = slots.spin_slot_machine()
-            # Configure images based on result
-            self.img_1.configure(image=self.get_image_for_symbol(result[0]))
-            self.img_2.configure(image=self.get_image_for_symbol(result[1]))
-            self.img_3.configure(image=self.get_image_for_symbol(result[2]))
-            # If all 3 slots match 10x amount bet
-            if slots.check_win(result):
-                self.balance += amount * 10
+        try:
+            # Get amount from entry field
+            amount = float(self.bet_entry.get())
+            # Error handling for negatives and zero amounts
+            if amount <= 0:
+                messagebox.showerror("Casino Error", "Amount must be greater than zero")
+            # Correct Entry
+            elif amount <= self.balance:
+                # Subtract amount from balance and update balance label
+                self.balance -= amount
                 self.update_balance_label()
-        # Error handling for Insufficient Balance
-        elif amount > self.balance:
-            messagebox.showerror("Casino Error", "Insufficient Funds")
-        # Error handling for non numbers
-        else:
+                # Add spin machine results to array
+                result = slots.spin_slot_machine()
+                # Configure images based on result
+                self.img_1.configure(image=self.get_image_for_symbol(result[0]))
+                self.img_2.configure(image=self.get_image_for_symbol(result[1]))
+                self.img_3.configure(image=self.get_image_for_symbol(result[2]))
+                # If all 3 slots match 10x amount bet
+                if slots.check_win(result):
+                    self.balance += amount * 10
+                    self.update_balance_label()
+            # Error handling for Insufficient Balance
+            elif amount > self.balance:
+                messagebox.showerror("Casino Error", "Insufficient Funds")
+            # Error handling for non numbers
+            else:
+                messagebox.showerror("Casino Error", "Invalid Character")
+        except:
             messagebox.showerror("Casino Error", "Invalid Character")
 
     def get_image_for_symbol(self, symbol):
@@ -245,6 +250,168 @@ class CasinoGui:
 
         # Creates play screen
         self.play()
+
+    def blackjack_play(self):
+        # Clear play screen
+        self.back_play_button.pack_forget()
+        self.play_title_label.pack_forget()
+        self.play_slots_button.pack_forget()
+        self.play_blackjack_button.pack_forget()
+
+        # Blackjack title
+        self.title_label = ctk.CTkLabel(self.root, text="Blackjack!", font=("Arial", 30, "bold", "italic"))
+        self.title_label.pack(pady=25)
+
+        # Frame holding card images
+        self.card_frame = ttk.Frame(self.root)
+        self.card_frame.pack()
+
+        # Frame for your and dealer label with values
+        self.value_frame = tk.Frame(self.root)
+        self.value_frame.pack()
+        # Your label
+        your_value = 0
+        self.your = ctk.CTkLabel(self.value_frame, text=f"Your: {your_value}", font=("Arial", 15, "bold"))
+        self.your.grid(row=0, column=0, padx=(0, 300))
+        # Dealer label
+        dealer_value = 0
+        self.dealer = ctk.CTkLabel(self.value_frame, text=f"Dealer: {your_value}", font=("Arial", 15, "bold"))
+        self.dealer.grid(row=0, column=1)
+
+        # Load images for deck of cards
+        self.load_card_images()
+        # Create default card image
+        default_size = (65, 100)
+        self.card_default = ImageTk.PhotoImage(Image.open("Deck of Cards/card back red.png").resize(default_size))
+
+        # User cards
+        self.uCard1 = tk.Label(self.card_frame, image=self.card_default)
+        self.uCard1.grid(row=0, column=0)
+        self.uCard2 = tk.Label(self.card_frame, image=self.card_default)
+        self.uCard2.grid(row=0, column=1)
+        self.uCard3 = tk.Label(self.card_frame, image=self.card_default)
+        self.uCard3.grid(row=0, column=2)
+        self.uCard4 = tk.Label(self.card_frame, image=self.card_default)
+        self.uCard4.grid(row=0, column=3, padx=(0, 20))
+
+        # Dealer cards
+        self.dCard1 = tk.Label(self.card_frame, image=self.card_default)
+        self.dCard1.grid(row=0, column=4)
+        self.dCard2 = tk.Label(self.card_frame, image=self.card_default)
+        self.dCard2.grid(row=0, column=5)
+        self.dCard3 = tk.Label(self.card_frame, image=self.card_default)
+        self.dCard3.grid(row=0, column=6)
+        self.dCard4 = tk.Label(self.card_frame, image=self.card_default)
+        self.dCard4.grid(row=0, column=7)
+
+        # Frame holding hit and stand buttons
+        self.hs_frame = ttk.Frame(self.root)
+        self.hs_frame.pack(pady=5)
+
+        # Hit button
+        self.bet_button = ctk.CTkButton(self.hs_frame, text="Hit", font=("Arial", 15, "bold"),
+                                        width=60, height=30)
+        self.bet_button.grid(row=0, column=1, padx=(0, 5))
+
+        # Stand button
+        self.bet_button = ctk.CTkButton(self.hs_frame, text="Stand", font=("Arial", 15, "bold"),
+                                        width=60, height=30)
+        self.bet_button.grid(row=0, column=2)
+
+        # Frame holding account balance and bet amount
+        self.bet_frame = ttk.Frame(self.root)
+        self.bet_frame.pack(pady=5)
+
+        # Label Balance:
+        self.account_label = ctk.CTkLabel(self.bet_frame, text="Balance:", font=("Arial", 15))
+        self.account_label.grid(row=0, column=0)
+
+        # Balance amount
+        self.balance_label = ctk.CTkLabel(self.bet_frame, text=f"${self.balance:.2f}", font=("Arial", 20, "bold"),
+                                          text_color='green')
+        self.balance_label.grid(row=0, column=1)
+
+        # Label Amount:
+        self.amount_label = ctk.CTkLabel(self.bet_frame, text="Amount:", font=("Arial", 15))
+        self.amount_label.grid(row=0, column=2, padx=(40, 5))
+
+        # Entry field for bet amount
+        self.bet_entry = ctk.CTkEntry(self.bet_frame)
+        self.bet_entry.grid(row=0, column=3, padx=(0, 5))
+
+        # Bet button
+        self.bet_button = ctk.CTkButton(self.bet_frame, text="Bet", font=("Arial", 15, "bold"),
+                                        command=self.blackjack_bet, width=60, height=30)
+        self.bet_button.grid(row=0, column=4)
+
+        # Go back button
+        self.back_button = ctk.CTkButton(self.root, text="Back", font=("Arial", 15, "bold"),
+                                         command=self.blackjack_back,
+                                         width=250, height=50)
+        self.back_button.pack(pady=(20, 0))
+
+    def blackjack_bet(self):
+        try:
+            # Get amount from entry field
+            amount = float(self.bet_entry.get())
+            # Error handling for negatives and zero amounts
+            if amount <= 0:
+                messagebox.showerror("Casino Error", "Amount must be greater than zero")
+            # Correct Entry
+            elif amount <= self.balance:
+                # Subtract amount from balance and update balance label
+                self.balance -= amount
+                self.update_balance_label()
+
+                self.player_hand = []
+                self.dealer_hand = []
+
+                self.player_value = 0
+                self.dealer_value = 0
+
+                self.deck = blackjack.create_deck()
+
+                # self.player_value = blackjack.calculate_hand_value(self.player_hand)
+
+                self.player_hand.append(blackjack.deal_card(self.player_hand, self.deck))
+                self.uCard1.configure(image=self.card_images[self.player_hand[0]])
+
+                self.player_hand.append(blackjack.deal_card(self.player_hand, self.deck))
+                self.uCard2.configure(image=self.card_images[self.player_hand[1]])
+
+
+            # Error handling for Insufficient Balance
+            elif amount > self.balance:
+                messagebox.showerror("Casino Error", "Insufficient Funds")
+            # Error handling for non numbers
+            else:
+                messagebox.showerror("Casino Error", "Invalid Character")
+        except:
+            messagebox.showerror("Casino Error", "Invalid Character")
+
+    def load_card_images(self):
+        new_size = (65, 100)
+        suits = ["spades", "hearts", "diamonds", "clubs"]
+        values = ["ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king"]
+
+        self.card_images = {}
+        for suit in suits:
+            for value in values:
+                card_name = f"{value}_of_{suit}"
+                img = Image.open(f"Deck of Cards/{value}_of_{suit}.png").resize(new_size)
+                self.card_images[card_name] = ImageTk.PhotoImage(img)
+
+    def blackjack_back(self):
+        # Clear blackjack screen
+        self.title_label.pack_forget()
+        self.back_button.pack_forget()
+        self.bet_frame.pack_forget()
+        self.hs_frame.pack_forget()
+        self.card_frame.pack_forget()
+        self.value_frame.pack_forget()
+
+        # Create casino menu
+        self.casino_menu()
 
     def back_play(self):
         # Clear play screen
@@ -388,7 +555,7 @@ class CasinoGui:
         # Clear menu
         self.clear_menu()
         # Create login page
-        self.create_widgets()
+        self.create_login()
 
     def register(self):
         # Clear login page
@@ -425,7 +592,7 @@ class CasinoGui:
         self.button_register.pack_forget()
 
         # Create login page
-        self.create_widgets()
+        self.create_login()
 
 
 def main():
