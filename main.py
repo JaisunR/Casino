@@ -7,7 +7,6 @@ from PIL import Image, ImageTk
 import slotmachine
 import blackjack
 
-
 class CasinoGui:
     def __init__(self, root):
         # Create initial window
@@ -310,12 +309,12 @@ class CasinoGui:
 
         # Hit button
         self.bet_button = ctk.CTkButton(self.hs_frame, text="Hit", font=("Arial", 15, "bold"),
-                                        width=60, height=30)
+                                        command=self.hit, width=60, height=30)
         self.bet_button.grid(row=0, column=1, padx=(0, 5))
 
         # Stand button
         self.bet_button = ctk.CTkButton(self.hs_frame, text="Stand", font=("Arial", 15, "bold"),
-                                        width=60, height=30)
+                                        command=self.stand, width=60, height=30)
         self.bet_button.grid(row=0, column=2)
 
         # Frame holding account balance and bet amount
@@ -353,23 +352,17 @@ class CasinoGui:
     def blackjack_bet(self):
         try:
             # Get amount from entry field
-            amount = float(self.bet_entry.get())
+            self.bj_amount = float(self.bet_entry.get())
             # Error handling for negatives and zero amounts
-            if amount <= 0:
+            if self.bj_amount <= 0:
                 messagebox.showerror("Casino Error", "Amount must be greater than zero")
             # Correct Entry
-            elif amount <= self.balance:
+            elif self.bj_amount <= self.balance:
                 # Subtract amount from balance and update balance label
-                self.balance -= amount
+                self.balance -= self.bj_amount
                 self.update_balance_label()
 
-                self.player_hand = []
-                self.dealer_hand = []
-
-                self.player_value = 0
-                self.dealer_value = 0
-
-                self.deck = blackjack.create_deck()
+                self.reset_blackjack()
 
                 # self.player_value = blackjack.calculate_hand_value(self.player_hand)
 
@@ -389,14 +382,17 @@ class CasinoGui:
                 self.dealer.configure(text=f"Dealer: {self.dealer_value}")
 
                 blackjack.deal_card(self.dealer_hand, self.deck)
+                self.dealer_value = blackjack.calculate_hand_value(self.dealer_hand)
+
+                while self.dealer_value <= 16:
+                    blackjack.deal_card(self.dealer_hand, self.deck)
+                    self.dealer_value = blackjack.calculate_hand_value(self.dealer_hand)
 
                 print(self.player_hand)
                 print(self.dealer_hand)
 
-
-
             # Error handling for Insufficient Balance
-            elif amount > self.balance:
+            elif self.bj_amount > self.balance:
                 messagebox.showerror("Casino Error", "Insufficient Funds")
             # Error handling for non numbers
             else:
@@ -415,6 +411,65 @@ class CasinoGui:
                 card_name = f"{value}_of_{suit}"
                 img = Image.open(f"Deck of Cards/{value}_of_{suit}.png").resize(new_size)
                 self.card_images[card_name] = ImageTk.PhotoImage(img)
+
+    def hit(self):
+        try:
+            blackjack.deal_card(self.player_hand, self.deck)
+            if len(self.player_hand) == 3:
+                self.uCard3.configure(image=self.card_images[self.player_hand[2]])
+            elif len(self.player_hand) == 4:
+                self.uCard4.configure(image=self.card_images[self.player_hand[3]])
+            self.your_value = blackjack.calculate_hand_value(self.player_hand)
+            self.your.configure(text=f"Your: {self.your_value}")
+            if self.your_value > 21:
+                messagebox.showinfo("Blackjack", "You Lose")
+                self.reset_blackjack()
+        except:
+            messagebox.showerror("Casino Error", "Place Bets First")
+
+    def stand(self):
+        try:
+            self.dealer.configure(text=f"Dealer: {self.dealer_value}")
+            self.dCard2.configure(image=self.card_images[self.dealer_hand[1]])
+            if len(self.dealer_hand) > 2:
+                self.dCard3.configure(image=self.card_images[self.dealer_hand[2]])
+            if len(self.dealer_hand) > 3:
+                self.dCard4.configure(image=self.card_images[self.dealer_hand[3]])
+            result = blackjack.check_win(self.dealer_value, self.your_value)
+            if result == 1:
+                messagebox.showinfo("Blackjack", "You Win!")
+                self.balance += self.bj_amount * 2
+                self.balance_label.configure(text=f"Dealer: {self.dealer_value}")
+            elif result == -1:
+                messagebox.showinfo("Blackjack", "You lose")
+            elif result == 0:
+                messagebox.showinfo("Blackjack", "Draw")
+                self.balance += self.bj_amount
+            self.reset_blackjack()
+        except:
+            messagebox.showerror("Casino Error", "Place Bets First")
+
+    def reset_blackjack(self):
+        self.player_hand = []
+        self.dealer_hand = []
+
+        self.your_value = 0
+        self.dealer_value = 0
+
+        self.deck = blackjack.create_deck()
+
+        self.uCard1.configure(image=self.card_default)
+        self.uCard2.configure(image=self.card_default)
+        self.uCard3.configure(image=self.card_default)
+        self.uCard4.configure(image=self.card_default)
+
+        self.dCard1.configure(image=self.card_default)
+        self.dCard2.configure(image=self.card_default)
+        self.dCard3.configure(image=self.card_default)
+        self.dCard4.configure(image=self.card_default)
+
+        self.your.configure(text=f"Your: {self.your_value}")
+        self.dealer.configure(text=f"Dealer: {self.dealer_value}")
 
     def blackjack_back(self):
         # Clear blackjack screen

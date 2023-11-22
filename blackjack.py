@@ -1,5 +1,6 @@
 import random
 
+
 def create_deck():
     suits = ["spades", "hearts", "diamonds", "clubs"]
     values = ["ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "jack", "queen", "king"]
@@ -7,10 +8,12 @@ def create_deck():
     random.shuffle(deck)
     return deck
 
+
 def deal_card(hand, deck):
     card = deck.pop()
     hand.append(card)
     return card
+
 
 def calculate_hand_value(hand):
     value = 0
@@ -31,12 +34,11 @@ def calculate_hand_value(hand):
 
     return value
 
+
 def check_win(dealer_value, player_value):
     if dealer_value > 21 or player_value > dealer_value:
         return 1
     elif dealer_value > player_value:
         return -1
-    elif dealer_value == player_value:
-        return 2
     else:
         return 0
