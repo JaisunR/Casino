@@ -6,6 +6,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import slotmachine
 import blackjack
+import database
 
 class CasinoGui:
     def __init__(self, root):
@@ -54,13 +55,20 @@ class CasinoGui:
 
     def login(self):
         # Get login and password from user
-        login_id = self.login_entry.get()
-        password = self.password_entry.get()
-
-        # Take user to casino menu if credentials verified
-        self.casino_menu()
+        self.user_id = self.login_entry.get()
+        self.password = self.password_entry.get()
+        user = database.user.find_one(
+            {"username": self.user_id, "password": self.password}
+        )
+        if not user:
+            messagebox.showerror(
+                "Casino Error", "Please provide valid user_id and password"
+            )
+        else:
+            self.casino_menu()
 
     def casino_menu(self):
+        self.balance = database.balance.find_one({"username": self.user_id})["balance"]
         # Clear login page
         self.clear_login()
 
@@ -439,12 +447,13 @@ class CasinoGui:
             if result == 1:
                 messagebox.showinfo("Blackjack", "You Win!")
                 self.balance += self.bj_amount * 2
-                self.balance_label.configure(text=f"Dealer: {self.dealer_value}")
+                self.balance_label.configure(text=f"${self.balance:.2f}")
             elif result == -1:
                 messagebox.showinfo("Blackjack", "You lose")
             elif result == 0:
                 messagebox.showinfo("Blackjack", "Draw")
                 self.balance += self.bj_amount
+                self.balance_label.configure(text=f"${self.balance:.2f}")
             self.reset_blackjack()
         except:
             messagebox.showerror("Casino Error", "Place Bets First")
@@ -557,6 +566,12 @@ class CasinoGui:
             # If valid amount
             if amount > 0:
                 # Add amount to balance
+                self.balance = database.balance.find_one({"username": self.user_id})[
+                    "balance"
+                ]
+                database.balance.update_one(
+                    {"username": self.user_id}, {"$inc": {"balance": amount}}
+                )
                 self.balance += amount
                 # Update label
                 self.update_balance_label()
@@ -574,11 +589,17 @@ class CasinoGui:
             # Amount entered in withdraw field
             amount = float(self.with_entry.get())
             # If negative or zero amount
+            self.balance = database.balance.find_one({"username": self.user_id})[
+                "balance"
+            ]
             if amount <= 0:
                 messagebox.showerror("Casino Error", "Amount must be greater than zero")
             # Valid amount
             elif amount <= self.balance:
                 # Subtract amount from balance
+                database.balance.update_one(
+                    {"username": self.user_id}, {"$inc": {"balance": -amount}}
+                )
                 self.balance -= amount
                 # Update balance amount
                 self.update_balance_label()
@@ -656,14 +677,28 @@ class CasinoGui:
         self.button_register.pack(pady=15)
 
     def register_button(self):
-        # Clear register page
-        self.register_frame.pack_forget()
-        self.register_title_label.pack_forget()
-        self.button_register.pack_forget()
+        self.user_id = self.login_entry.get()
+        self.password = self.password_entry.get()
+        if database.user.find_one({"username": self.user_id}):
+            messagebox.showerror("Casino Error", "User name already exists")
+        else:
+            self.set_user(self.user_id, self.password)
+            # Clear register page
+            self.register_frame.pack_forget()
+            self.register_title_label.pack_forget()
+            self.button_register.pack_forget()
 
-        # Create login page
-        self.create_login()
+            # Create login page
+            self.create_login()
 
+    def set_user(self, user_id, password):
+        # setting up user account
+        user_data = {"username": user_id, "password": password}
+        database.user.insert_one(user_data)
+
+        # setting up balance account
+        balance_data = {"username": user_id, "balance": 0}
+        database.balance.insert_one(balance_data)
 
 def main():
     root = ctk.CTk()
