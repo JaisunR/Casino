@@ -20,7 +20,7 @@ class CasinoGui:
         self.balance = 0
 
     # Login Page
-    def create_login(self):
+    def create_login(self): # Create login page
         # Title
         self.title_label = ctk.CTkLabel(self.root, text="Welcome to the Casino!", font=("Arial", 40, "bold", "italic"))
         self.title_label.pack(pady=50)
@@ -49,17 +49,18 @@ class CasinoGui:
         self.button_register = ctk.CTkButton(self.root, text="Register a new account", command=self.register, width=175)
         self.button_register.pack()
 
-    def clear_login(self):
+    def clear_login(self): 
         # Clear the login widgets
         self.title_label.pack_forget()
         self.pass_log_frame.pack_forget()
         self.button_login.pack_forget()
         self.button_register.pack_forget()
 
-    def login(self):
+    def login(self): # Function for signing in users
         # Get login and password from user
         self.user_id = self.login_entry.get()
         self.password = self.password_entry.get()
+        # Check if credentials are valid
         user = database.user.find_one(
             {"username": self.user_id, "password": self.password}
         )
@@ -68,10 +69,11 @@ class CasinoGui:
                 "Casino Error", "Please provide valid user_id and password"
             )
         else:
+            # Create casino menu
             self.casino_menu()
 
     # Register Page
-    def register(self):
+    def register(self): # Creates the register page
         # Clear login page
         self.clear_login()
 
@@ -103,7 +105,7 @@ class CasinoGui:
         self.back_login_button = ctk.CTkButton(self.root, text="Back", command=self.back_login)
         self.back_login_button.pack()
 
-    def back_login(self):
+    def back_login(self): # Brings user back to the login menu
         # Clear deposit & withdraw screen
         self.register_title_label.pack_forget()
         self.register_frame.pack_forget()
@@ -117,10 +119,12 @@ class CasinoGui:
         # Create login menu
         self.create_login()
 
-    def register_button(self):
+    def register_button(self): # Registers a user account if not credentials don't already exist
         self.user_id = self.login_entry.get()
         self.password = self.password_entry.get()
+        # Check if username exists in database
         if database.user.find_one({"username": self.user_id}):
+            # Return Error
             messagebox.showerror("Casino Error", "User name already exists")
         else:
             self.set_user(self.user_id, self.password)
@@ -141,7 +145,7 @@ class CasinoGui:
         balance_data = {"username": user_id, "balance": 0}
         database.balance.insert_one(balance_data)
 
-    def casino_menu(self):
+    def casino_menu(self): # Creates the casino main menu
         self.balance = database.balance.find_one({"username": self.user_id})["balance"]
         # Clear login page
         self.clear_login()
@@ -179,7 +183,7 @@ class CasinoGui:
         self.logout_button.pack_forget()
 
     # Play Page
-    def play(self):
+    def play(self): # Creates the play page with the 2 available games
         # Get rid of menu
         self.clear_menu()
 
@@ -206,7 +210,7 @@ class CasinoGui:
         self.back_play_button.pack()
 
     # Slots Game Page
-    def slots_play(self):
+    def slots_play(self): # Creates the page for the slots game
         # Clear play screen
         self.back_play_button.pack_forget()
         self.play_title_label.pack_forget()
@@ -214,7 +218,7 @@ class CasinoGui:
         self.play_blackjack_button.pack_forget()
 
         # If Windows use 175,175
-        # IF Mac use 125,125
+        # If Mac use 125,125
         # Size of Images
         new_size = (175, 175)
 
@@ -352,8 +356,8 @@ class CasinoGui:
         # Creates play screen
         self.play()
 
-    #Blackjack game page
-    def blackjack_play(self):
+    # Blackjack game page
+    def blackjack_play(self): # Creates the blackjack page
         # Clear play screen
         self.back_play_button.pack_forget()
         self.play_title_label.pack_forget()
@@ -582,14 +586,19 @@ class CasinoGui:
             messagebox.showerror("Casino Error", "Place Bets First")
 
     def reset_blackjack(self):
+
+        # Clear user and dealer hand
         self.player_hand = []
         self.dealer_hand = []
 
+        # Reset user and dealer hand value
         self.your_value = 0
         self.dealer_value = 0
 
+        # Create new deck
         self.deck = blackjack.create_deck()
 
+        # Reset all cards to "face down"
         self.uCard1.configure(image=self.card_default)
         self.uCard2.configure(image=self.card_default)
         self.uCard3.configure(image=self.card_default)
@@ -600,8 +609,8 @@ class CasinoGui:
         self.dCard3.configure(image=self.card_default)
         self.dCard4.configure(image=self.card_default)
 
-        self.your.configure(text=f"Your: {self.your_value}")
-        self.dealer.configure(text=f"Dealer: {self.dealer_value}")
+        self.your.configure(text=f"Your Hand: {self.your_value}")
+        self.dealer.configure(text=f"Dealer's Hand: {self.dealer_value}")
 
     def blackjack_back(self):
         # Clear blackjack screen
@@ -625,7 +634,8 @@ class CasinoGui:
         # Create casino menu
         self.casino_menu()
 
-    def deposit_withdraw(self):
+    # Deposit/Withdraw Page
+    def deposit_withdraw(self): # Creates the deposit/withdraw page
         # Clear menu
         self.clear_menu()
 
@@ -682,7 +692,7 @@ class CasinoGui:
         # Create casino menu
         self.casino_menu()
 
-    def dep_dw(self):
+    def dep_dw(self): # Function for adding "money" into user account
         try:
             # Amount entered in deposit entry field
             amount = float(self.dep_entry.get())
@@ -707,7 +717,7 @@ class CasinoGui:
         except:
             messagebox.showerror("Casino Error", "Invalid Character")
 
-    def with_dw(self):
+    def with_dw(self): # Function for withdrawing from user account
         try:
             # Amount entered in withdraw field
             amount = float(self.with_entry.get())
@@ -741,7 +751,7 @@ class CasinoGui:
 
 
     #View History Page
-    def view_history(self):
+    def view_history(self): # Creates the view history page
         # Clear menu
         self.clear_menu()
 
@@ -779,7 +789,7 @@ class CasinoGui:
         # Create login page
         self.create_login()
 
-    def log_game_history(self, game_type, result, bet_amount, updated_balance):
+    def log_game_history(self, game_type, result, bet_amount, updated_balance): # Function for logging each game entry
         timestamp = datetime.datetime.now()
         history_entry = {
             "username": self.user_id,
