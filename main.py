@@ -20,7 +20,7 @@ class CasinoGui:
         self.balance = 0
 
     # Login Page
-    def create_login(self):
+    def create_login(self): # Create login page
         # Title
         self.title_label = ctk.CTkLabel(self.root, text="Welcome to the Casino!", font=("Arial", 40, "bold", "italic"))
         self.title_label.pack(pady=50)
@@ -49,17 +49,18 @@ class CasinoGui:
         self.button_register = ctk.CTkButton(self.root, text="Register a new account", command=self.register, width=175)
         self.button_register.pack()
 
-    def clear_login(self):
+    def clear_login(self): 
         # Clear the login widgets
         self.title_label.pack_forget()
         self.pass_log_frame.pack_forget()
         self.button_login.pack_forget()
         self.button_register.pack_forget()
 
-    def login(self):
+    def login(self): # Function for signing in users
         # Get login and password from user
         self.user_id = self.login_entry.get()
         self.password = self.password_entry.get()
+        # Check if credentials are valid
         user = database.user.find_one(
             {"username": self.user_id, "password": self.password}
         )
@@ -68,10 +69,11 @@ class CasinoGui:
                 "Casino Error", "Please provide valid user_id and password"
             )
         else:
+            # Create casino menu
             self.casino_menu()
 
     # Register Page
-    def register(self):
+    def register(self): # Creates the register page
         # Clear login page
         self.clear_login()
 
@@ -103,7 +105,7 @@ class CasinoGui:
         self.back_login_button = ctk.CTkButton(self.root, text="Back", command=self.back_login)
         self.back_login_button.pack()
 
-    def back_login(self):
+    def back_login(self): # Brings user back to the login menu
         # Clear deposit & withdraw screen
         self.register_title_label.pack_forget()
         self.register_frame.pack_forget()
@@ -117,10 +119,12 @@ class CasinoGui:
         # Create login menu
         self.create_login()
 
-    def register_button(self):
+    def register_button(self): # Registers a user account if not credentials don't already exist
         self.user_id = self.login_entry.get()
         self.password = self.password_entry.get()
+        # Check if username exists in database
         if database.user.find_one({"username": self.user_id}):
+            # Return Error
             messagebox.showerror("Casino Error", "User name already exists")
         else:
             self.set_user(self.user_id, self.password)
@@ -141,7 +145,7 @@ class CasinoGui:
         balance_data = {"username": user_id, "balance": 0}
         database.balance.insert_one(balance_data)
 
-    def casino_menu(self):
+    def casino_menu(self): # Creates the casino main menu
         self.balance = database.balance.find_one({"username": self.user_id})["balance"]
         # Clear login page
         self.clear_login()
@@ -179,7 +183,7 @@ class CasinoGui:
         self.logout_button.pack_forget()
 
     # Play Page
-    def play(self):
+    def play(self): # Creates the play page with the 2 available games
         # Get rid of menu
         self.clear_menu()
 
@@ -206,7 +210,7 @@ class CasinoGui:
         self.back_play_button.pack()
 
     # Slots Game Page
-    def slots_play(self):
+    def slots_play(self): # Creates the page for the slots game
         # Clear play screen
         self.back_play_button.pack_forget()
         self.play_title_label.pack_forget()
@@ -214,8 +218,9 @@ class CasinoGui:
         self.play_blackjack_button.pack_forget()
 
         # If Windows use 175,175
+        # If Mac use 125,125
         # Size of Images
-        new_size = (125, 125)
+        new_size = (175, 175)
 
         # Load and resize slot machine images into variables
         self.img7 = ImageTk.PhotoImage(Image.open("Slots Symbols/7.png").resize(new_size))
@@ -227,6 +232,9 @@ class CasinoGui:
         # Slots title
         self.title_label = ctk.CTkLabel(self.root, text="Slots!", font=("Arial", 30, "bold", "italic"))
         self.title_label.pack(pady=25)
+
+        self.subtext_label = ctk.CTkLabel(self.root, text="Match All 3 To 10x Your Money!", font=("Arial", 12, "bold", "italic"))
+        self.subtext_label.pack()
 
         # Frame holding 3 slot images intialized with cherries
         self.img_frame = tk.Frame(self.root)
@@ -343,12 +351,13 @@ class CasinoGui:
         self.img_frame.pack_forget()
         self.spin_button.pack_forget()
         self.bet_frame.pack_forget()
+        self.subtext_label.pack_forget()
 
         # Creates play screen
         self.play()
 
-    #Blackjack game page
-    def blackjack_play(self):
+    # Blackjack game page
+    def blackjack_play(self): # Creates the blackjack page
         # Clear play screen
         self.back_play_button.pack_forget()
         self.play_title_label.pack_forget()
@@ -406,14 +415,14 @@ class CasinoGui:
         self.hs_frame.pack(pady=5)
 
         # Hit button
-        self.bet_button = ctk.CTkButton(self.hs_frame, text="Hit", font=("Arial", 15, "bold"),
-                                        command=self.hit, width=60, height=30)
-        self.bet_button.grid(row=0, column=1, padx=(0, 5))
+        self.hit_button = ctk.CTkButton(self.hs_frame, text="Hit", font=("Arial", 15, "bold"),
+                                        command=self.hit, width=60, height=30, state=tk.DISABLED)
+        self.hit_button.grid(row=0, column=1, padx=(0, 5))
 
         # Stand button
-        self.bet_button = ctk.CTkButton(self.hs_frame, text="Stand", font=("Arial", 15, "bold"),
-                                        command=self.stand, width=60, height=30)
-        self.bet_button.grid(row=0, column=2)
+        self.stand_button = ctk.CTkButton(self.hs_frame, text="Stand", font=("Arial", 15, "bold"),
+                                        command=self.stand, width=60, height=30, state=tk.DISABLED)
+        self.stand_button.grid(row=0, column=2)
 
         # Frame holding account balance and bet amount
         self.bet_frame = ttk.Frame(self.root)
@@ -448,6 +457,7 @@ class CasinoGui:
         self.back_button.pack(pady=(20, 0))
 
     def blackjack_bet(self):
+        self.bet_placed = False
         try:
             # Get amount from entry field
             self.bj_amount = float(self.bet_entry.get())
@@ -456,15 +466,19 @@ class CasinoGui:
                 messagebox.showerror("Casino Error", "Amount must be greater than zero")
             # Correct Entry
             elif self.bj_amount <= self.balance:
+                self.bet_placed = True
                 # Subtract amount from balance and update balance label
                 database.balance.update_one({"username": self.user_id}, {"$inc": {"balance": -self.bj_amount}})
                 self.balance -= self.bj_amount
                 self.update_balance_label()
 
-
                 self.reset_blackjack()
 
-                # self.player_value = blackjack.calculate_hand_value(self.player_hand)
+                # Enable Hit and Stand buttons
+                self.hit_button.configure(state=tk.NORMAL)
+                self.stand_button.configure(state=tk.NORMAL)
+
+                self.player_value = blackjack.calculate_hand_value(self.player_hand)
 
                 blackjack.deal_card(self.player_hand, self.deck)
                 self.uCard1.configure(image=self.card_images[self.player_hand[0]])
@@ -523,6 +537,9 @@ class CasinoGui:
             self.your.configure(text=f"Your: {self.your_value}")
             if self.your_value > 21:
                 messagebox.showinfo("Blackjack", "You Lose")
+                # Disable Hit and Stand buttons
+                self.hit_button.configure(state=tk.DISABLED)
+                self.stand_button.configure(state=tk.DISABLED)
                 # Log game entry
                 self.log_game_history("Blackjack", "LOSS", self.bj_amount, self.balance)
                 self.reset_blackjack()
@@ -540,15 +557,24 @@ class CasinoGui:
             result = blackjack.check_win(self.dealer_value, self.your_value)
             if result == 1:
                 messagebox.showinfo("Blackjack", "You Win!")
+                # Disable Hit and Stand buttons
+                self.hit_button.configure(state=tk.DISABLED)
+                self.stand_button.configure(state=tk.DISABLED)
                 database.balance.update_one({"username": self.user_id}, {"$inc": {"balance": self.bj_amount * 2}})
                 self.log_game_history("Blackjack", "WIN!", self.bj_amount, self.balance)
                 self.balance += self.bj_amount * 2
                 self.balance_label.configure(text=f"${self.balance:.2f}")
             elif result == -1:
                 messagebox.showinfo("Blackjack", "You lose")
+                # Disable Hit and Stand buttons
+                self.hit_button.configure(state=tk.DISABLED)
+                self.stand_button.configure(state=tk.DISABLED)
                 self.log_game_history("Blackjack", "LOSS", self.bj_amount, self.balance)
             elif result == 0:
                 messagebox.showinfo("Blackjack", "Draw")
+                # Disable Hit and Stand buttons
+                self.hit_button.configure(state=tk.DISABLED)
+                self.stand_button.configure(state=tk.DISABLED)
                 # Add money back into account
                 database.balance.update_one({"username": self.user_id}, {"$inc": {"balance": self.bj_amount}})
                 self.balance += self.bj_amount
@@ -560,14 +586,19 @@ class CasinoGui:
             messagebox.showerror("Casino Error", "Place Bets First")
 
     def reset_blackjack(self):
+
+        # Clear user and dealer hand
         self.player_hand = []
         self.dealer_hand = []
 
+        # Reset user and dealer hand value
         self.your_value = 0
         self.dealer_value = 0
 
+        # Create new deck
         self.deck = blackjack.create_deck()
 
+        # Reset all cards to "face down"
         self.uCard1.configure(image=self.card_default)
         self.uCard2.configure(image=self.card_default)
         self.uCard3.configure(image=self.card_default)
@@ -578,8 +609,8 @@ class CasinoGui:
         self.dCard3.configure(image=self.card_default)
         self.dCard4.configure(image=self.card_default)
 
-        self.your.configure(text=f"Your: {self.your_value}")
-        self.dealer.configure(text=f"Dealer: {self.dealer_value}")
+        self.your.configure(text=f"Your Hand: {self.your_value}")
+        self.dealer.configure(text=f"Dealer's Hand: {self.dealer_value}")
 
     def blackjack_back(self):
         # Clear blackjack screen
@@ -603,7 +634,8 @@ class CasinoGui:
         # Create casino menu
         self.casino_menu()
 
-    def deposit_withdraw(self):
+    # Deposit/Withdraw Page
+    def deposit_withdraw(self): # Creates the deposit/withdraw page
         # Clear menu
         self.clear_menu()
 
@@ -660,7 +692,7 @@ class CasinoGui:
         # Create casino menu
         self.casino_menu()
 
-    def dep_dw(self):
+    def dep_dw(self): # Function for adding "money" into user account
         try:
             # Amount entered in deposit entry field
             amount = float(self.dep_entry.get())
@@ -685,7 +717,7 @@ class CasinoGui:
         except:
             messagebox.showerror("Casino Error", "Invalid Character")
 
-    def with_dw(self):
+    def with_dw(self): # Function for withdrawing from user account
         try:
             # Amount entered in withdraw field
             amount = float(self.with_entry.get())
@@ -719,7 +751,7 @@ class CasinoGui:
 
 
     #View History Page
-    def view_history(self):
+    def view_history(self): # Creates the view history page
         # Clear menu
         self.clear_menu()
 
@@ -735,8 +767,8 @@ class CasinoGui:
         history_entries = database.game_history.find({"username": self.user_id})
         for entry in history_entries:
             self.history_text.insert(tk.END,
-                                     f"{entry['timestamp']}   -   {entry['game_type']}   -   Result: {entry['result']}"
-                                     f"   -   Bet Amount: ${entry['bet_amount']}   -   Updated Balance: NEEDS FIX'\n\n")
+                                     f"{entry['timestamp']}   -   {entry['game_type']}   -   Result: {entry['result']} - "
+                                     f"  Bet Amount: ${entry['bet_amount']}   -   Updated Balance: ${entry['updated_balance']}\n\n")
         # Go back button
         self.back_vh_button = ctk.CTkButton(self.root, text="Back", font=("Arial", 15, "bold"), command=self.back_vh,
                                             width=250, height=50)
@@ -757,7 +789,7 @@ class CasinoGui:
         # Create login page
         self.create_login()
 
-    def log_game_history(self, game_type, result, bet_amount, updated_balance):
+    def log_game_history(self, game_type, result, bet_amount, updated_balance): # Function for logging each game entry
         timestamp = datetime.datetime.now()
         history_entry = {
             "username": self.user_id,
