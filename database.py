@@ -4,7 +4,9 @@ import certifi
 
 class MongoDB:
     def __init__(self, db_name, collection_name) -> None:
-        self.client = self.client = pymongo.MongoClient("mongodb+srv://jaisunr:qLIm8HQFYsGI3J7P@cluster0.qqzfse3.mongodb.net/?retryWrites=true&w=majority", tlsCAFile=certifi.where())
+        self.client = self.client = pymongo.MongoClient(
+            "mongodb+srv://Jacob2:xOecJJ12zJSATm1o@cluster0.hlc3bi6.mongodb.net/?retryWrites=true&w=majority",
+            tlsCAFile=certifi.where())
         self.db = self.get_create_database(db_name)
         self.collection = self.get_create_collection(collection_name)
 
@@ -31,3 +33,4 @@ class MongoDB:
 user = MongoDB(db_name="casino", collection_name="user").collection
 transaction = MongoDB(db_name="casino", collection_name="transaction").collection
 balance = MongoDB(db_name="casino", collection_name="balance").collection
+game_history = MongoDB(db_name="casino", collection_name="game_history").collection
