@@ -49,18 +49,22 @@ class CasinoGui:
         self.button_register = ctk.CTkButton(self.root, text="Register a new account", command=self.register, width=175)
         self.button_register.pack()
 
-    def clear_login(self): 
+    def clear_login(self):
         # Clear the login widgets
         self.title_label.pack_forget()
         self.pass_log_frame.pack_forget()
         self.button_login.pack_forget()
         self.button_register.pack_forget()
 
-    def login(self): # Function for signing in users
+    def login(self):
         # Get login and password from user
         self.user_id = self.login_entry.get()
         self.password = self.password_entry.get()
-        # Check if credentials are valid
+
+        # Check if username and password are both entered
+        if not self.user_id or not self.password:
+            messagebox.showerror("Casino Error", "Please enter both username and password")
+            return
         user = database.user.find_one(
             {"username": self.user_id, "password": self.password}
         )
@@ -69,7 +73,6 @@ class CasinoGui:
                 "Casino Error", "Please provide valid user_id and password"
             )
         else:
-            # Create casino menu
             self.casino_menu()
 
     # Register Page
@@ -105,7 +108,7 @@ class CasinoGui:
         self.back_login_button = ctk.CTkButton(self.root, text="Back", command=self.back_login)
         self.back_login_button.pack()
 
-    def back_login(self): # Brings user back to the login menu
+    def back_login(self):  # Clears the screen, brings user back to the login menu
         # Clear deposit & withdraw screen
         self.register_title_label.pack_forget()
         self.register_frame.pack_forget()
@@ -122,6 +125,11 @@ class CasinoGui:
     def register_button(self): # Registers a user account if not credentials don't already exist
         self.user_id = self.login_entry.get()
         self.password = self.password_entry.get()
+
+        # Check if username and password are entered
+        if not self.user_id or not self.password:
+            messagebox.showerror("Casino Error", "Please enter both a username and password")
+            return
         # Check if username exists in database
         if database.user.find_one({"username": self.user_id}):
             # Return Error
@@ -132,6 +140,7 @@ class CasinoGui:
             self.register_frame.pack_forget()
             self.register_title_label.pack_forget()
             self.button_register.pack_forget()
+            self.back_login_button.pack_forget()
 
             # Create login page
             self.create_login()
@@ -183,7 +192,7 @@ class CasinoGui:
         self.logout_button.pack_forget()
 
     # Play Page
-    def play(self): # Creates the play page with the 2 available games
+    def play(self):  # Creates the play page with the 2 available games
         # Get rid of menu
         self.clear_menu()
 
@@ -210,7 +219,7 @@ class CasinoGui:
         self.back_play_button.pack()
 
     # Slots Game Page
-    def slots_play(self): # Creates the page for the slots game
+    def slots_play(self):  # Creates the page for the slots game
         # Clear play screen
         self.back_play_button.pack_forget()
         self.play_title_label.pack_forget()
@@ -751,7 +760,7 @@ class CasinoGui:
 
 
     #View History Page
-    def view_history(self): # Creates the view history page
+    def view_history(self):  # Creates the view history page
         # Clear menu
         self.clear_menu()
 
@@ -789,7 +798,7 @@ class CasinoGui:
         # Create login page
         self.create_login()
 
-    def log_game_history(self, game_type, result, bet_amount, updated_balance): # Function for logging each game entry
+    def log_game_history(self, game_type, result, bet_amount, updated_balance):  # Function for logging each game entry
         timestamp = datetime.datetime.now()
         history_entry = {
             "username": self.user_id,
