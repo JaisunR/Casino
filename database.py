@@ -5,7 +5,7 @@ import certifi
 class MongoDB:
     def __init__(self, db_name, collection_name) -> None:
         self.client = self.client = pymongo.MongoClient(
-            "mongodb+srv://Jacob2:xOecJJ12zJSATm1o@cluster0.hlc3bi6.mongodb.net/?retryWrites=true&w=majority",
+            "urlhere",
             tlsCAFile=certifi.where())
         self.db = self.get_create_database(db_name)
         self.collection = self.get_create_collection(collection_name)
