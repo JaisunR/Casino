@@ -10,6 +10,8 @@ import blackjack
 import database
 import client
 import server
+import threading
+import socket
 
 class CasinoGui:
     def __init__(self, root):
@@ -19,6 +21,12 @@ class CasinoGui:
         self.root.geometry("600x400")
         self.create_login()
         self.balance = 0
+        self.server_thread = threading.Thread(target=self.start_server, daemon=True)
+        self.server_thread.start()
+
+    def start_server(self):
+        # Start the server function from the server module
+        server.server()
 
     # Login Page
     def create_login(self): # Create login page
@@ -800,7 +808,8 @@ class CasinoGui:
 
     def chat(self):
         self.clear_menu()
-        client.client()
+
+        self.chat_socket = client.client(self.update_chat)
 
         self.vh_title_label = ctk.CTkLabel(self.root, text="Live Chat", font=("Arial", 35, "bold"))
         self.vh_title_label.pack(pady=(30, 10))
@@ -816,7 +825,7 @@ class CasinoGui:
         self.text_entry.pack(side=tk.LEFT, padx=(0,10))
 
         self.send_button = ctk.CTkButton(self.entry_frame, text="Send", font=("Arial", 15, "bold"),
-                                         # command=self.send_message,
+                                         command=self.send_chat_message,
                                          width=15, height=3)
         self.send_button.pack(side=tk.LEFT)
 
@@ -824,7 +833,20 @@ class CasinoGui:
                                            width=250, height=50)
         self.back_c_button.pack(pady=10)
 
+    def update_chat(self, message):
+        self.chat_text.configure(state=tk.NORMAL)
+        self.chat_text.insert(tk.END, message + "\n")
+        self.chat_text.configure(state=tk.DISABLED)
+
+    def send_chat_message(self):
+        message = self.text_entry.get()
+        if message and self.chat_socket:
+            self.chat_socket.send(message.encode())
+            self.text_entry.delete(0, tk.END)
+
     def chat_back(self):
+        if self.chat_socket:
+            self.chat_socket.close()
         self.vh_title_label.pack_forget()
         self.chat_text.pack_forget()
         self.back_c_button.pack_forget()
