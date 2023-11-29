@@ -834,12 +834,14 @@ class CasinoGui:
         self.back_c_button.pack(pady=10)
 
     def update_chat(self, message):
+        print("Received message:", message)
         self.chat_text.configure(state=tk.NORMAL)
         self.chat_text.insert(tk.END, message + "\n")
         self.chat_text.configure(state=tk.DISABLED)
 
     def send_chat_message(self):
         message = self.text_entry.get()
+        self.update_chat(message)
         if message and self.chat_socket:
             self.chat_socket.send(message.encode())
             self.text_entry.delete(0, tk.END)

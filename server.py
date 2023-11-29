@@ -73,7 +73,7 @@ def server() -> None:
             threading.Thread(target=handle_user_connection, args=[socket_connection, address]).start()
 
     except Exception as e:
-        print(f'An error has occurred when instancing socket: {e}')
+        print(f'An error has occurred creating socket: {e}')
     finally:
         # In case of any problem clean all connections and close the server connection
         if len(connections) > 0:
