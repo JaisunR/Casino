@@ -805,17 +805,33 @@ class CasinoGui:
         self.vh_title_label = ctk.CTkLabel(self.root, text="Live Chat", font=("Arial", 35, "bold"))
         self.vh_title_label.pack(pady=(30, 10))
 
-        self.chat_text = tk.scrolledtext.ScrolledText(self.root, height=25, width=100, font=("Arial", 20, "bold"))
+        self.chat_text = tk.scrolledtext.ScrolledText(self.root, height=15, width=100, font=("Arial", 20, "bold"))
         self.chat_text.pack()
 
+        # Frame to contain the text entry and "Send" button
+        self.entry_frame = tk.Frame(self.root)
+        self.entry_frame.pack(pady=10)
+
+        self.text_entry = tk.Entry(self.entry_frame, font=("Arial", 35), width=50)
+        self.text_entry.pack(side=tk.LEFT, padx=(0,10))
+
+        self.send_button = ctk.CTkButton(self.entry_frame, text="Send", font=("Arial", 15, "bold"),
+                                         # command=self.send_message,
+                                         width=15, height=3)
+        self.send_button.pack(side=tk.LEFT)
+
         self.back_c_button = ctk.CTkButton(self.root, text="Back", font=("Arial", 15, "bold"), command=self.chat_back,
-                                            width=250, height=50)
+                                           width=250, height=50)
         self.back_c_button.pack(pady=10)
 
     def chat_back(self):
         self.vh_title_label.pack_forget()
         self.chat_text.pack_forget()
         self.back_c_button.pack_forget()
+        self.text_entry.pack_forget()
+        self.send_button.pack_forget()
+        self.entry_frame.pack_forget()
+
 
         self.casino_menu()
 
