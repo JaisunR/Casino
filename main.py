@@ -8,7 +8,8 @@ from PIL import Image, ImageTk  # pip install pillow
 import slotmachine
 import blackjack
 import database
-
+import client
+import server
 
 class CasinoGui:
     def __init__(self, root):
@@ -178,10 +179,14 @@ class CasinoGui:
                                             command=self.view_history, width=250, height=50)
         self.history_button.pack()
 
+        self.chat_button = ctk.CTkButton(self.root, text="Chat", font=("Arial", 15, "bold"),
+                                            command=self.chat, width=250, height=50)
+        self.chat_button.pack(pady=5)
+
         # Logout Button
         self.logout_button = ctk.CTkButton(self.root, text="Logout", font=("Arial", 15, "bold"),
                                            command=self.logout, width=250, height=50)
-        self.logout_button.pack(pady=5)
+        self.logout_button.pack()
 
     def clear_menu(self):
         # Clear casino menu
@@ -190,6 +195,7 @@ class CasinoGui:
         self.money_button.pack_forget()
         self.history_button.pack_forget()
         self.logout_button.pack_forget()
+        self.chat_button.pack_forget()
 
     # Play Page
     def play(self):  # Creates the play page with the 2 available games
@@ -790,6 +796,27 @@ class CasinoGui:
         self.history_text.pack_forget()
 
         # Create casino menu
+        self.casino_menu()
+
+    def chat(self):
+        self.clear_menu()
+        client.client()
+
+        self.vh_title_label = ctk.CTkLabel(self.root, text="Live Chat", font=("Arial", 35, "bold"))
+        self.vh_title_label.pack(pady=(30, 10))
+
+        self.chat_text = tk.scrolledtext.ScrolledText(self.root, height=25, width=100, font=("Arial", 20, "bold"))
+        self.chat_text.pack()
+
+        self.back_c_button = ctk.CTkButton(self.root, text="Back", font=("Arial", 15, "bold"), command=self.chat_back,
+                                            width=250, height=50)
+        self.back_c_button.pack(pady=10)
+
+    def chat_back(self):
+        self.vh_title_label.pack_forget()
+        self.chat_text.pack_forget()
+        self.back_c_button.pack_forget()
+
         self.casino_menu()
 
     def logout(self):
