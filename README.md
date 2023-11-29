@@ -1,21 +1,12 @@
-Casino-Updated
+Final Project - Casino
+(Jaisun Rattu/Jacob Soriano)
 
-Fixed:
-
-- No back button option when registering an account (FIXED)
-
-- Blackjack back button would go to casino menu instead of game menu (FIXED)
-
-- Account balance would remain the same when leaving the slots game (FIXED)
-
-- No history collection to keep track of user game history after each game played (FIXED)
-
-- Blackjack issues (game still plays even though bet is not placed first) (FIXED)
-
-- View history not showing the updated balance after a loss/win (FIXED)
-
-
-Not yet fixed:
-
-- Need to separate files for each page
-
+Features:
+- Users can register a new account (won't allow duplicate usernames)
+- Login Page
+- Users can deposit and withdraw from their balance 
+- Two available games to play (Slots/BlackJack)
+- Game history check
+	- Displays (Date/Time, Game, Result, Bet Amount, New Balance) for each game played by that user
+- Live Chat using client and server
+- Logout (User balance and game history will be saved)
